@@ -58,9 +58,9 @@ func decodeMap(d *Decoder) (interface{}, error) {
 		return nil, nil
 	}
 
-	m := make(map[interface{}]interface{}, min(n, mapElemsAllocLimit))
+	m := make(map[string]interface{}, min(n, mapElemsAllocLimit))
 	for i := 0; i < n; i++ {
-		mk, err := d.DecodeInterface()
+		mk, err := d.DecodeString()
 		if err != nil {
 			return nil, err
 		}
