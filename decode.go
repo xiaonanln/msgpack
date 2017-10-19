@@ -265,7 +265,7 @@ func (d *Decoder) DecodeInterface() (interface{}, error) {
 	}
 
 	if codes.IsFixedNum(c) {
-		return int8(c), nil
+		return int64(int8(c)), nil
 	}
 	if codes.IsFixedMap(c) {
 		d.r.UnreadByte()
@@ -284,23 +284,31 @@ func (d *Decoder) DecodeInterface() (interface{}, error) {
 	case codes.False, codes.True:
 		return d.bool(c)
 	case codes.Float:
-		return d.float32(c)
+		v, err := d.float32(c)
+		return float64(v), err
 	case codes.Double:
 		return d.float64(c)
 	case codes.Uint8:
-		return d.uint8()
+		v, err := d.uint8()
+		return int64(v), err
 	case codes.Uint16:
-		return d.uint16()
+		v, err := d.uint16()
+		return int64(v), err
 	case codes.Uint32:
-		return d.uint32()
+		v, err := d.uint32()
+		return int64(v), err
 	case codes.Uint64:
-		return d.uint64()
+		v, err := d.uint64()
+		return int64(v), err
 	case codes.Int8:
-		return d.int8()
+		v, err := d.int8()
+		return int64(v), err
 	case codes.Int16:
-		return d.int16()
+		v, err := d.int16()
+		return int64(v), err
 	case codes.Int32:
-		return d.int32()
+		v, err := d.int32()
+		return int64(v), err
 	case codes.Int64:
 		return d.int64()
 	case codes.Bin8, codes.Bin16, codes.Bin32:
@@ -320,57 +328,57 @@ func (d *Decoder) DecodeInterface() (interface{}, error) {
 	return 0, fmt.Errorf("msgpack: unknown code %x decoding interface{}", c)
 }
 
-// DecodeInterfaceLoose is like DecodeInterface except that:
-//   - int8, int16, and int32 are converted to int64,
-//   - uint8, uint16, and uint32 are converted to uint64,
-//   - float32 is converted to float64.
-func (d *Decoder) DecodeInterfaceLoose() (interface{}, error) {
-	c, err := d.readCode()
-	if err != nil {
-		return nil, err
-	}
-
-	if codes.IsFixedNum(c) {
-		return int64(c), nil
-	}
-	if codes.IsFixedMap(c) {
-		d.r.UnreadByte()
-		return d.DecodeMap()
-	}
-	if codes.IsFixedArray(c) {
-		return d.decodeSlice(c)
-	}
-	if codes.IsFixedString(c) {
-		return d.string(c)
-	}
-
-	switch c {
-	case codes.Nil:
-		return nil, nil
-	case codes.False, codes.True:
-		return d.bool(c)
-	case codes.Float, codes.Double:
-		return d.float64(c)
-	case codes.Uint8, codes.Uint16, codes.Uint32, codes.Uint64:
-		return d.uint(c)
-	case codes.Int8, codes.Int16, codes.Int32, codes.Int64:
-		return d.int(c)
-	case codes.Bin8, codes.Bin16, codes.Bin32:
-		return d.bytes(c, nil)
-	case codes.Str8, codes.Str16, codes.Str32:
-		return d.string(c)
-	case codes.Array16, codes.Array32:
-		return d.decodeSlice(c)
-	case codes.Map16, codes.Map32:
-		d.r.UnreadByte()
-		return d.DecodeMap()
-	case codes.FixExt1, codes.FixExt2, codes.FixExt4, codes.FixExt8, codes.FixExt16,
-		codes.Ext8, codes.Ext16, codes.Ext32:
-		return d.ext(c)
-	}
-
-	return 0, fmt.Errorf("msgpack: unknown code %x decoding interface{}", c)
-}
+//// DecodeInterfaceLoose is like DecodeInterface except that:
+////   - int8, int16, and int32 are converted to int64,
+////   - uint8, uint16, and uint32 are converted to uint64,
+////   - float32 is converted to float64.
+//func (d *Decoder) DecodeInterfaceLoose() (interface{}, error) {
+//	c, err := d.readCode()
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	if codes.IsFixedNum(c) {
+//		return int64(c), nil
+//	}
+//	if codes.IsFixedMap(c) {
+//		d.r.UnreadByte()
+//		return d.DecodeMap()
+//	}
+//	if codes.IsFixedArray(c) {
+//		return d.decodeSlice(c)
+//	}
+//	if codes.IsFixedString(c) {
+//		return d.string(c)
+//	}
+//
+//	switch c {
+//	case codes.Nil:
+//		return nil, nil
+//	case codes.False, codes.True:
+//		return d.bool(c)
+//	case codes.Float, codes.Double:
+//		return d.float64(c)
+//	case codes.Uint8, codes.Uint16, codes.Uint32, codes.Uint64:
+//		return d.uint(c)
+//	case codes.Int8, codes.Int16, codes.Int32, codes.Int64:
+//		return d.int(c)
+//	case codes.Bin8, codes.Bin16, codes.Bin32:
+//		return d.bytes(c, nil)
+//	case codes.Str8, codes.Str16, codes.Str32:
+//		return d.string(c)
+//	case codes.Array16, codes.Array32:
+//		return d.decodeSlice(c)
+//	case codes.Map16, codes.Map32:
+//		d.r.UnreadByte()
+//		return d.DecodeMap()
+//	case codes.FixExt1, codes.FixExt2, codes.FixExt4, codes.FixExt8, codes.FixExt16,
+//		codes.Ext8, codes.Ext16, codes.Ext32:
+//		return d.ext(c)
+//	}
+//
+//	return 0, fmt.Errorf("msgpack: unknown code %x decoding interface{}", c)
+//}
 
 // Skip skips next value.
 func (d *Decoder) Skip() error {
